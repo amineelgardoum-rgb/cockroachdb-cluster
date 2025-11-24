@@ -1,0 +1,30 @@
+docker exec -it configsvr --port 27017
+rs.initiate({
+_id: "configReplSet",
+configsvr: true,
+members: [{ _id: 0, host: "configsvr:27017" },
+          {_id:1,host:"configsvr1:27017"},
+          {_id:2,host:"configsvr2:27017"}]
+})
+docker exec -it shard1 --port 27018
+rs.initiate({
+_id: "shard1ReplSet",
+members: [{ _id:0,host:"shard1:27018" },
+           {_id:1,host:"shard1-1:27018"},
+           {_id:2,host:"shard1-2:27018"}]
+})
+docker exec -it shard2 --port 27019
+rs.initiate({
+_id: "shard1ReplSet",
+members: [{ _id:0,host:"shard2:27019" },
+           {_id:1,host:"shard2-1:27019"},
+           {_id:2,host:"shard2-2:27019"}]
+})
+docker exec -it mongos mongosh --port 27020
+sh.addShard("shard1ReplSet/shard1:27018")
+sh.addShard("shard2ReplSet/shard2:27019")
+sh.enableSharding("shardingDemo")
+db.users.createIndex({ userId: 1 })
+sh.shardCollection("shardingDemo.users", { userId: 1 })
+use shardingDemo
+db.users.getShardDistribution()
