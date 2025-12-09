@@ -191,42 +191,42 @@ services:
       - 27032:27017
 
   # Monitoring
-  mongodb_exporter:
-    image: bitnami/mongodb-exporter:latest
-    container_name: mongodb_exporter
-    networks:
-      - mongodb_cluster
-    command:
-      - "--mongodb.uri=mongodb://mongos:27017"
-    ports:
-      - "9216:9216"
-    depends_on:
-      - mongos
+  # mongodb_exporter:
+  #   image: bitnami/mongodb-exporter:latest
+  #   container_name: mongodb_exporter
+  #   networks:
+  #     - mongodb_cluster
+  #   command:
+  #     - "--mongodb.uri=mongodb://mongos:27017"
+  #   ports:
+  #     - "9216:9216"
+  #   depends_on:
+  #     - mongos
 
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    networks:
-      - mongodb_cluster
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    depends_on:
-      - mongodb_exporter
+  # prometheus:
+  #   image: prom/prometheus
+  #   container_name: prometheus
+  #   networks:
+  #     - mongodb_cluster
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  #   ports:
+  #     - "9090:9090"
+  #   depends_on:
+  #     - mongodb_exporter
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    networks:
-      - mongodb_cluster
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=YourNewPassword123
-    ports:
-      - "3000:3000"
-    depends_on:
-      - prometheus
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   networks:
+  #     - mongodb_cluster
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=admin
+  #     - GF_SECURITY_ADMIN_PASSWORD=YourNewPassword123
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - prometheus
 
   # n8n
   n8n:
@@ -239,27 +239,29 @@ services:
       - "5678:5678"
     environment:
       - DB_TYPE=mongodb
-      - DB_MONGODB_CONNECTION_URL=mongodb://mongos:27017/n8n
+      - DB_MONGODB_CONNECTION_URL=mongodb://mongos:27017/n8n?authSource=admin
       - N8N_BASIC_AUTH_ACTIVE=false
       - N8N_PORT=5678
     depends_on:
       - mongos
 
-  n8n1:
-    image: n8nio/n8n:latest
-    container_name: n8n1
-    restart: always
-    networks:
-      - mongodb_cluster
-    ports:
-      - "5677:5678"
-    environment:
-      - DB_TYPE=mongodb
-      - DB_MONGODB_CONNECTION_URL=mongodb://mongos:27017/n8n
-      - N8N_BASIC_AUTH_ACTIVE=false
-      - N8N_PORT=5678
-    depends_on:
-      - mongos
+
+  # n8n1:
+  #   image: n8nio/n8n:latest
+  #   container_name: n8n1
+  #   restart: always
+  #   networks:
+  #     - mongodb_cluster
+  #   ports:
+  #     - "5677:5678"    
+  #   environment:
+  #     - DB_TYPE=mongodb
+  #     - DB_MONGODB_CONNECTION_URL=mongodb://mongos:27017/n8n1?authSource=admin
+  #     - N8N_BASIC_AUTH_ACTIVE=false
+  #     - N8N_PORT=5678   
+  #   depends_on:
+  #     - mongos
+
 
 volumes:
   configsvr:
